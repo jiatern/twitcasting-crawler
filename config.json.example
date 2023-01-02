@@ -1,0 +1,54 @@
+{
+    "_comment 1": "List of apps used for accessing the API, each app can check one channel per second, so with 2 apps it takes 10s to check 20 channels vs 20s with a single one",
+    "apps": [
+        {
+            "client_id": "client_id_1",
+            "client_secret": "client_secret_1"
+        },
+        {
+            "client_id": "client_id_2",
+            "client_secret": "client_secret_2",
+            "_comment": "Optional, defaults to global delay",
+            "delay": "2s"
+        }
+    ],
+
+    "_comment 2": "Default delay between successive checks with the same credentials",
+    "delay": "1s",
+
+    "_comment 3": "List of channels to watch, can be either a string or an object (in which case at least 'name' must be present)",
+    "_comment 3.1": "download_command, post_download_command, download_directory, log_file can be set to override global values",
+    "channels": [
+        "kuroneko_datenn",
+        {
+            "name": "whatweneed8837",
+            "post_download_command": ["echo", "guutara download done"],
+        }
+    ],
+
+    "_comment 4": "Command to execute after downloads are finished, if empty or missing nothing is executed",
+    "_comment 4.1": "All arguments are go templates (https://pkg.go.dev/text/template), see `crawl.go` for fields available",
+    "post_download_command": [
+        "echo", "downloaded", "{{.Broadcaster.ScreenID}}", "{{.Movie.ID}}", "{{.Movie.Created}}"
+    ],
+
+    "_comment 5": "The fields below are set to their defaults",
+    "download_command": [
+        "yt-dlp",
+        "--parse-metadata", "%(release_date,upload_date,epoch>%Y%m%d)s:%(date)s",
+        "--parse-metadata", "%(release_date,upload_date,epoch>%Y%m%d)s:%(meta_date)s",
+        "-o", "%(uploader_id)s-%(date)s-%(id)s.%(ext)s",
+        "--write-info-json",
+        "--write-thumbnail",
+        "--embed-metadata",
+        "--embed-thumbnail",
+        "https://twitcasting.tv/{{.Broadcaster.ScreenID}}"
+    ],
+
+    "_comment 6": "Directory where download_command/post_download_command are executed",
+    "download_directory": "recordings",
+
+    "_comment 7": "Path is relative to the download directory",
+    "log_file": "{{.Broadcaster.ScreenID}}-{{.Movie.ID}}.log"
+}
+
