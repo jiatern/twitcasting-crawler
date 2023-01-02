@@ -75,7 +75,7 @@ func LoadConfig(path string) (*Config, error) {
                 template.Must(parseTemplate("argument", "--write-thumbnail")),
                 template.Must(parseTemplate("argument", "--embed-metadata")),
                 template.Must(parseTemplate("argument", "--embed-thumbnail")),
-                template.Must(parseTemplate("argument", "https://twitcasting.tv/{{.Broadcaster.ScreenID}}")),
+                template.Must(parseTemplate("argument", "https://twitcasting.tv/{{.Broadcaster.ScreenID}}/movie/{{.Movie.ID}}")),
             },
         }
     }

@@ -43,7 +43,7 @@
         "--write-thumbnail",
         "--embed-metadata",
         "--embed-thumbnail",
-        "https://twitcasting.tv/{{.Broadcaster.ScreenID}}"
+        "https://twitcasting.tv/{{.Broadcaster.ScreenID}}/movie/{{.Movie.ID}}"
     ],
 
     "_comment 6": "Directory where download_command/post_download_command are executed",
