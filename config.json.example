@@ -37,6 +37,7 @@
         "yt-dlp",
         "--parse-metadata", "%(release_date,upload_date,epoch>%Y%m%d)s:%(date)s",
         "--parse-metadata", "%(release_date,upload_date,epoch>%Y%m%d)s:%(meta_date)s",
+        "--parse-metadata", "%(fulltitle,title)s:%(meta_title)s",
         "-o", "%(uploader_id)s-%(date)s-%(id)s.%(ext)s",
         "--write-info-json",
         "--write-thumbnail",

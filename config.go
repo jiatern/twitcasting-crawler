@@ -67,6 +67,8 @@ func LoadConfig(path string) (*Config, error) {
                 template.Must(parseTemplate("argument", "%(release_date,upload_date,epoch>%Y%m%d)s:%(date)s")),
                 template.Must(parseTemplate("argument", "--parse-metadata")),
                 template.Must(parseTemplate("argument", "%(release_date,upload_date,epoch>%Y%m%d)s:%(meta_date)s")),
+                template.Must(parseTemplate("argument", "--parse-metadata")),
+                template.Must(parseTemplate("argument", "%(fulltitle,title)s:%(meta_title)s")),
                 template.Must(parseTemplate("argument", "-o")),
                 template.Must(parseTemplate("argument", "%(uploader_id)s-%(date)s-%(id)s.%(ext)s")),
                 template.Must(parseTemplate("argument", "--write-info-json")),
