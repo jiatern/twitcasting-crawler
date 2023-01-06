@@ -41,6 +41,18 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
         }
     }
 
+    var postDlCmd []string
+    if channel.PostDlCmd != nil {
+        var err error
+        postDlCmd, err = channel.PostDlCmd.Format(resp)
+        if err != nil {
+            return fmt.Errorf("Malformed post download command template for %s: %w", channel.Name, err)
+        }
+        if len(postDlCmd) == 0 {
+            postDlCmd = nil
+        }
+    }
+    
     if err := os.MkdirAll(dir, 0755); err != nil {
         return fmt.Errorf("Unable to create download directory %s: %w", dir, err)
     }
@@ -85,6 +97,12 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
         cmd.Stdin = nil
         cmd.Stdout = logf
         cmd.Stderr = logf
+        
+        cmdtwo = exec.Command(postDlCmd[0], postDlCmd[1:]...)
+        cmdtwo.Dir = dir
+        cmdtwo.Stdin = nil
+        cmdtwo.Stdout = logf
+        cmdtwo.Stderr = logf
 
         if err := cmd.Run(); err != nil {
             log.Printf("[%s:%s] Post download command failed: %w", channel.Name, resp.Movie.ID, err)
