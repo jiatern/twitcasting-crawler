@@ -27,6 +27,7 @@ type Channel struct {
     Name            string
     DownloadCmd     *Command
     DownloadDir     *Path
+    PreDownloadCmd  *Command
     PostDownloadCmd *Command //nil = use default
     LogFile         *Path
 }
@@ -41,6 +42,7 @@ type Config struct {
     Delay           Duration      `json:"delay"`
     DownloadCmd     *Command      `json:"download_command"`
     DownloadDir     *Path         `json:"download_directory"`
+    PreDownloadCmd  *Command      `json:"pre_download_command"`
     PostDownloadCmd *Command      `json:"post_download_command"`
     LogFile         *Path         `json:"log_file"`
 }
@@ -108,6 +110,9 @@ func LoadConfig(path string) (*Config, error) {
         }
         if c.DownloadDir == nil {
             c.DownloadDir = cfg.DownloadDir
+        }
+        if c.PreDownloadCmd == nil {
+            c.PreDownloadCmd = cfg.PreDownloadCmd
         }
         if c.PostDownloadCmd == nil {
             c.PostDownloadCmd = cfg.PostDownloadCmd
@@ -186,6 +191,7 @@ func (c *Channel) UnmarshalJSON(data []byte) error {
         Name            string   `json:"name"`
         DownloadCmd     *Command `json:"download_command"`
         DownloadDir     *Path    `json:"download_directory"`
+        PreDownloadCmd  *Command `json:"pre_download_command"`
         PostDownloadCmd *Command `json:"post_download_command"`
         LogFile         *Path    `json:"log_file"`
     } {}
@@ -196,6 +202,7 @@ func (c *Channel) UnmarshalJSON(data []byte) error {
         Name:            d.Name,
         DownloadCmd:     d.DownloadCmd,
         DownloadDir:     d.DownloadDir,
+        PreDownloadCmd:  d.PreDownloadCmd,
         PostDownloadCmd: d.PostDownloadCmd,
         LogFile:         d.LogFile,
     }

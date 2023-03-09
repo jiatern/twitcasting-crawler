@@ -19,7 +19,18 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
         return fmt.Errorf("Malformed log file template for %s: %w", channel.Name, err)
     }
 
-
+    var preDownloadCmd []string
+    if channel.PreDownloadCmd != nil {
+        var err error
+        preDownloadCmd, err = channel.PreDownloadCmd.Format(resp)
+        if err != nil {
+            return fmt.Errorf("Malformed pre download command template for %s: %w", channel.Name, err)
+        }
+        if len(preDownloadCmd) == 0 {
+            preDownloadCmd = nil
+        }
+    }
+    
     downloadCmd, err := channel.DownloadCmd.Format(resp)
     if err != nil {
         return fmt.Errorf("Malformed download command template for %s: %w", channel.Name, err)
@@ -41,25 +52,23 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
         }
     }
 
-    var postDlCmd []string
-    if channel.PostDlCmd != nil {
-        var err error
-        postDlCmd, err = channel.PostDlCmd.Format(resp)
-        if err != nil {
-            return fmt.Errorf("Malformed post download command template for %s: %w", channel.Name, err)
-        }
-        if len(postDlCmd) == 0 {
-            postDlCmd = nil
-        }
-    }
-    
     if err := os.MkdirAll(dir, 0755); err != nil {
         return fmt.Errorf("Unable to create download directory %s: %w", dir, err)
     }
 
     log.Printf("[%s] Running %+q in %s", channel.Name, downloadCmd, dir)
 
-    cmd := exec.Command(downloadCmd[0], downloadCmd[1:]...)
+    cmd := exec.Command(preDownloadCmd[0], preDownloadCmd[1:]...)
+    cmd.Dir = dir
+    cmd.Stdin = nil
+
+    if err := cmd.Run(); err != nil {
+        log.Printf("[%s:%s] Pre download command failed: %w", channel.Name, resp.Movie.ID, err)
+    } else {
+        log.Printf("[%s:%s] Pre download command done", channel.Name, resp.Movie.ID)
+    }
+    
+    cmd = exec.Command(downloadCmd[0], downloadCmd[1:]...)
     cmd.Dir = dir
     cmd.Stdin = nil
 
@@ -97,12 +106,6 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
         cmd.Stdin = nil
         cmd.Stdout = logf
         cmd.Stderr = logf
-        
-        cmdtwo = exec.Command(postDlCmd[0], postDlCmd[1:]...)
-        cmdtwo.Dir = dir
-        cmdtwo.Stdin = nil
-        cmdtwo.Stdout = logf
-        cmdtwo.Stderr = logf
 
         if err := cmd.Run(); err != nil {
             log.Printf("[%s:%s] Post download command failed: %w", channel.Name, resp.Movie.ID, err)
@@ -112,4 +115,3 @@ func (c *Crawler) record(channel *Channel, resp *CurrentLiveResponse) error {
     }()
     return nil
 }
-
